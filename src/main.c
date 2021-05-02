@@ -3,36 +3,46 @@
 #include "types.h"
 #include "console_vga.h"
 #include "intr.h"
-#include "keyboard.h"
+#include "screen.c"
+#include "timing.c"
+#include "sound.c"
 
-volatile uint32 count = 0;
-
-fastcall void
-kbHandler(KeyEvent *event)
+int main(void)
 {
-   if (!event->pressed) {
-      return;
-   }
-   if (event->key == 0 || event->key >= 0x80) {
-      return;
-   }
-
-   Console_WriteChar(event->key);
-   Console_Flush();
-}
-
-int
-main(void)
-{
+   // initialize stuff
    ConsoleVGA_Init();
    Intr_Init();
    Intr_SetFaultHandlers(Console_UnhandledFault);
-   Keyboard_Init();
-   Keyboard_SetHandler(kbHandler);
+   initTiming();
 
-   while (1) {
-      Intr_Halt();
+   // vbe info
+   printVBEInfo();
+
+   // pc speaker sound
+   play(1193180 / 800);
+
+   // timing
+   wait(1000);
+   Console_WriteString("wait_end");
+
+   /*
+   for (;;)
+   {
+      Console_MoveTo(0, 0);
+      Console_Format("T=%d", now());
    }
+*/
+
+   // vesa graphics
+   initScreen();
+   clearScreen(rgb(255, 0, 0));
+   swapScreen();
+   for (uint16 x = 0; x < SCREEN_W; x++)
+      for (uint16 y = 0; y < SCREEN_H; y++)
+         if (x == y)
+            setPixel(x, y, rgb(0, 255, 0));
+
+   swapScreen();
 
    return 0;
 }

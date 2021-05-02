@@ -2,7 +2,7 @@ SHELL = /bin/bash
 NAME = bad-apple
 METALKIT_LIB = ./metalkit/lib
 TARGET = $(NAME).img
-LIB_MODULES = console console_vga timer intr keyboard
+LIB_MODULES = console console_vga timer intr keyboard bios vbe
 APP_SOURCES = src/main.c
 
 include $(METALKIT_LIB)/Makefile.rules

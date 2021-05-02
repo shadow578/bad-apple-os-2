@@ -7,5 +7,5 @@ wsl make %1
 
 : start qemu
 if "%~1" == "" (
-    qemu-system-i386 -drive format=raw,file=bad-apple_boot.img -display sdl
+    qemu-system-i386 -drive format=raw,file=bad-apple_boot.img -display sdl -soundhw pcspk
 )
