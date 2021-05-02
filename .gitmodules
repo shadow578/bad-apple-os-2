@@ -1,0 +1,3 @@
+[submodule "metalkit"]
+	path = metalkit
+	url = https://github.com/scanlime/metalkit
