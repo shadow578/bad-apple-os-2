@@ -8,6 +8,15 @@
 #include "timing.c"
 #include "sound.c"
 #include "cpuid.c"
+#include "rtc.c"
+
+volatile uint32 counter = 0;
+
+void rtcIrq(int v)
+{
+   counter++;
+   RTC_ackInterrupt();
+}
 
 int main(void)
 {
@@ -17,12 +26,31 @@ int main(void)
    Intr_SetFaultHandlers(Console_UnhandledFault);
    initTiming();
 
+   // TODO rtc testing
+
+   // irq
+   RTC_registerIRQ(rtcIrq);
+
+   // clock
+   rtcTime_t time;
+   for (;;)
+   {
+      RTC_readRTC(&time);
+      Console_MoveTo(0, 0);
+      Console_Format("%d-%d-%d  %d:%d:%d  -- %d",
+                     time.year, time.month, time.dayOfMonth,
+                     time.hour, time.minute, time.second,
+                     counter);
+
+      wait(500);
+   }
+
    // vbe info
    printVBEInfo();
 
    // cpu info
    char vendor[17];
-   getCpuIdVendorString(vendor);
+   CPUID_getCpuIdVendorString(vendor);
    Console_Format("CPU Vendor: %s", vendor);
 
    // pc speaker sound

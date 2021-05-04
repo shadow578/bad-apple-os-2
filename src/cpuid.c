@@ -5,7 +5,7 @@
                                       : "=a"(a), "=b"(b), "=c"(c), "=d"(d) \
                                       : "a"(in));
 
-static inline void getCpuIdVendorString(char vendor[17])
+static inline void CPUID_getCpuIdVendorString(char vendor[17])
 {
     // execute cpuid
     uint32 eax, ebx, ecx, edx;
