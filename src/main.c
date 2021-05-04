@@ -3,9 +3,11 @@
 #include "types.h"
 #include "console_vga.h"
 #include "intr.h"
+
 #include "screen.c"
 #include "timing.c"
 #include "sound.c"
+#include "cpuid.c"
 
 int main(void)
 {
@@ -18,11 +20,16 @@ int main(void)
    // vbe info
    printVBEInfo();
 
+   // cpu info
+   char vendor[17];
+   getCpuIdVendorString(vendor);
+   Console_Format("CPU Vendor: %s", vendor);
+
    // pc speaker sound
-   play(1193180 / 800);
+   //playTone(1193180 / 800);
 
    // timing
-   wait(1000);
+   wait(10000);
    Console_WriteString("wait_end");
 
    /*

@@ -23,7 +23,7 @@
 #define PIT_BINARY 0b00000000
 #define PIT_BCD 0b00000000
 
-static inline void playSound(uint16 d)
+static inline void playTone(uint16 d)
 {
     IO_Out8(PORT_PIT_CMD, PIT_BINARY | PIT_MODE_3 | PIT_AM_LO_HI | PIT_CH2);
     IO_Out8(PORT_CH2, (uint8)(d & 0xFF));
