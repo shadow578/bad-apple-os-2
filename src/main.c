@@ -3,14 +3,19 @@
 #include "types.h"
 #include "console_vga.h"
 #include "intr.h"
+#include "datafile.h"
 
 #include "screen.c"
 #include "timing.c"
 #include "sound.c"
 #include "cpuid.c"
 #include "rtc.c"
+#include "mem.c"
+
+DECLARE_DATAFILE(data, test_raw_z);
 
 volatile uint32 counter = 0;
+uint32 len;
 
 void rtcIrq(int v)
 {
@@ -25,6 +30,22 @@ int main(void)
    Intr_Init();
    Intr_SetFaultHandlers(Console_UnhandledFault);
    initTiming();
+
+   // TODO datafile testing
+   len = DataFile_GetDecompressedSize(data);
+
+   // malloc testing
+   char *data_buffer = malloc(len + 1);
+
+   DataFile_Decompress(data, data_buffer, 1024);
+   data_buffer[len] = '\0';
+
+   Console_Flush();
+   Console_WriteString(data_buffer);
+   Console_Flush();
+
+   for (;;)
+      ;
 
    // TODO rtc testing
 
