@@ -1,3 +1,6 @@
+/**
+ * provides basic cpuid functions
+ */
 #include "types.h"
 
 #define CPUID_VENDOR_STRING 0x80000002
@@ -5,7 +8,7 @@
                                       : "=a"(a), "=b"(b), "=c"(c), "=d"(d) \
                                       : "a"(in));
 
-static inline void CPUID_getCpuIdVendorString(char vendor[17])
+static inline void CPUID_getVendorString(char vendor[17])
 {
     // execute cpuid
     uint32 eax, ebx, ecx, edx;
@@ -20,6 +23,6 @@ static inline void CPUID_getCpuIdVendorString(char vendor[17])
         vendor[i + 12] = edx >> (8 * i);
     }
 
-    // append null
+    // append null byte
     vendor[16] = '\0';
 }

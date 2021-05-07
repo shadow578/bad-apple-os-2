@@ -50,11 +50,11 @@ int main(void)
    }
 
    // vbe info
-   printVBEInfo();
+   VESA_printInfo();
 
    // cpu info
    char vendor[17];
-   CPUID_getCpuIdVendorString(vendor);
+   CPUID_getVendorString(vendor);
    Console_Format("CPU Vendor: %s", vendor);
 
    // pc speaker sound
@@ -64,24 +64,16 @@ int main(void)
    Time_delay(10000);
    Console_WriteString("wait_end");
 
-   /*
-   for (;;)
-   {
-      Console_MoveTo(0, 0);
-      Console_Format("T=%d", now());
-   }
-*/
-
    // vesa graphics
-   initScreen();
-   clearScreen(rgb(255, 0, 0));
-   swapScreen();
+   VESA_init();
+   VESA_clear(rgb(255, 0, 0));
+   VESA_swap();
    for (uint16 x = 0; x < SCREEN_W; x++)
       for (uint16 y = 0; y < SCREEN_H; y++)
          if (x == y)
-            setPixel(x, y, rgb(0, 255, 0));
+            VESA_write(x, y, rgb(0, 255, 0));
 
-   swapScreen();
+   VESA_swap();
 
    return 0;
 }

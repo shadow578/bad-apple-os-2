@@ -1,4 +1,4 @@
-/*
+/**
  * this is a REALLY REALLY bad malloc implementation.
  * don't use this anywhere that matters lol.
  * 
@@ -13,6 +13,13 @@
 extern unsigned char _end[];
 static uint8 *_memPtr = 1 + ((uint8 *)_end);
 
+/**
+ * really bad malloc. 
+ * try to not use this too much :P
+ * 
+ * @param len how much memory to allocate
+ * @returns pointer to the start of the allocated memory
+ */
 static inline void *malloc(uint32 len)
 {
     // get current pointer

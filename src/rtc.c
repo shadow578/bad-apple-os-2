@@ -1,3 +1,9 @@
+/**
+ * real time clock utility functions.
+ * allows easy(tm) reading of the current time.
+ * also includes timing functions (millisecond delay, ...)
+ */
+
 #include "types.h"
 #include "io.h"
 #include "intr.h"
@@ -55,11 +61,19 @@ static inline uint8 RTC__isUpdateInProgress()
     return RTC__readRegister(CMOS_STATUSA) & 0x80;
 }
 
+/**
+ * acknowledge a RTC interrupt (IRQ 8)
+ * call this at the end of your ISR, otherwise the interrupt will not occur again
+ */
 static inline uint8 RTC_ackInterrupt()
 {
     return RTC__readRegister(RTC_REGISTERC);
 }
 
+/**
+ * read the current time
+ * @param time the structure to read the time into. current values are overwritten
+ */
 static inline void RTC_readRTC(rtcTime_t *time)
 {
     // wait for update in progress flag to be cleared
@@ -99,6 +113,11 @@ static inline void RTC_readRTC(rtcTime_t *time)
     time->year += CURRENT_CENTURY;
 }
 
+/**
+ * register a RTC interrupt handler (IRQ 8) that fires at 1024 Hz. 
+ * cannot be used with the timing functions (Time_*)
+ * @param handler the IRQ handler
+ */
 static inline void RTC_registerIRQ(IntrHandler handler)
 {
     // disable interrupts
@@ -137,19 +156,34 @@ void Time__timerIRQHandler(int v)
     RTC_ackInterrupt();
 }
 
+/**
+ * initialize the timing functions (Time_now() and Time_delay())
+ * cannot be used with RTC_registerIRQ()
+ */
 static inline void Time_init()
 {
     RTC_registerIRQ(Time__timerIRQHandler);
 }
 
+/**
+ * the current time in milliseconds since Time_init() was called.
+ * @returns the time, in milliseconds
+ */
 static inline uint32 Time_now()
 {
     return Time__ticks;
 }
 
-static inline void Time_delay(uint32 ticks)
+/**
+ * pause execution for a given amount of time (using a busy- loop)
+ * requires to call Time_init() first!
+ * @param ms how many milliseconds to delay for
+ */
+static inline void Time_delay(uint32 ms)
 {
-    uint32 end = Time_now() + ticks;
+    // i know that Time_now runs at 1024 Hz, not 1000 Hz.
+    // but this is good enough
+    uint32 end = Time_now() + ms;
     while (Time_now() < end)
         ;
 }
