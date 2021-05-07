@@ -6,22 +6,13 @@
 #include "datafile.h"
 
 #include "screen.c"
-#include "timing.c"
 #include "sound.c"
 #include "cpuid.c"
 #include "rtc.c"
 #include "mem.c"
 
 DECLARE_DATAFILE(data, test_raw_z);
-
-volatile uint32 counter = 0;
 uint32 len;
-
-void rtcIrq(int v)
-{
-   counter++;
-   RTC_ackInterrupt();
-}
 
 int main(void)
 {
@@ -29,9 +20,9 @@ int main(void)
    ConsoleVGA_Init();
    Intr_Init();
    Intr_SetFaultHandlers(Console_UnhandledFault);
-   initTiming();
+   Time_init();
 
-   // TODO datafile testing
+   // datafile testing
    len = DataFile_GetDecompressedSize(data);
 
    // malloc testing
@@ -44,14 +35,6 @@ int main(void)
    Console_WriteString(data_buffer);
    Console_Flush();
 
-   for (;;)
-      ;
-
-   // TODO rtc testing
-
-   // irq
-   RTC_registerIRQ(rtcIrq);
-
    // clock
    rtcTime_t time;
    for (;;)
@@ -61,9 +44,9 @@ int main(void)
       Console_Format("%d-%d-%d  %d:%d:%d  -- %d",
                      time.year, time.month, time.dayOfMonth,
                      time.hour, time.minute, time.second,
-                     counter);
+                     Time_now());
 
-      wait(500);
+      Time_delay(500);
    }
 
    // vbe info
@@ -78,7 +61,7 @@ int main(void)
    //playTone(1193180 / 800);
 
    // timing
-   wait(10000);
+   Time_delay(10000);
    Console_WriteString("wait_end");
 
    /*

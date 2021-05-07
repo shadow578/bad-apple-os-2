@@ -126,3 +126,30 @@ static inline void RTC_registerIRQ(IntrHandler handler)
     // re- enable interrupts
     Intr_Enable();
 }
+
+#define TICKS_FREQUENCY RTC_IRQ_RATE
+
+volatile uint32 Time__ticks;
+
+void Time__timerIRQHandler(int v)
+{
+    Time__ticks++;
+    RTC_ackInterrupt();
+}
+
+static inline void Time_init()
+{
+    RTC_registerIRQ(Time__timerIRQHandler);
+}
+
+static inline uint32 Time_now()
+{
+    return Time__ticks;
+}
+
+static inline void Time_delay(uint32 ticks)
+{
+    uint32 end = Time_now() + ticks;
+    while (Time_now() < end)
+        ;
+}
