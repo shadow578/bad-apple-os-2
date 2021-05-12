@@ -3,7 +3,7 @@ NAME = bad-apple
 METALKIT_LIB = ./metalkit/lib
 TARGET = $(NAME).img
 LIB_MODULES = console console_vga timer intr keyboard bios vbe puff
-APP_SOURCES = src/main.c test.raw.z.data.o
+APP_SOURCES = src/main.c chika.raw.z.data.o
 
 include $(METALKIT_LIB)/Makefile.rules
 

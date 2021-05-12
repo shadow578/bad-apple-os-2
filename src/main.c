@@ -11,8 +11,9 @@
 #include "rtc.c"
 #include "mem.c"
 
-DECLARE_DATAFILE(data, test_raw_z);
-uint32 len;
+#define WAVE_SAMPLE_RATE 22050
+DECLARE_DATAFILE(wave, chika_raw_z);
+uint32 samplesLen;
 
 int main(void)
 {
@@ -22,58 +23,32 @@ int main(void)
    Intr_SetFaultHandlers(Console_UnhandledFault);
    Time_init();
 
-   // datafile testing
-   len = DataFile_GetDecompressedSize(data);
+   // load raw WAV file (8 bit unsigned mono at WAVE_SAMPLE_RATE Hz)
+   samplesLen = DataFile_GetDecompressedSize(wave);
+   uint8 *samples = malloc(samplesLen);
+   DataFile_Decompress(wave, samples, samplesLen);
+   Console_Format("Loaded %d samples\n", samplesLen);
 
-   // malloc testing
-   char *data_buffer = malloc(len + 1);
+   // test sound
+   //Sound_playTone(2500);
+   Time_delay(500);
 
-   DataFile_Decompress(data, data_buffer, 1024);
-   data_buffer[len] = '\0';
+   // start playback
+   Console_WriteString("start");
+   Sound_play(samples, samplesLen, WAVE_SAMPLE_RATE);
 
-   Console_Flush();
-   Console_WriteString(data_buffer);
-   Console_Flush();
-
-   // clock
-   rtcTime_t time;
-   for (;;)
+   // wait for playback to end
+   uint32 currentSampleNo, lastSampleNo = 0;
+   while (Sound_donePlaying() == FALSE)
    {
-      RTC_readRTC(&time);
-      Console_MoveTo(0, 0);
-      Console_Format("%d-%d-%d  %d:%d:%d  -- %d",
-                     time.year, time.month, time.dayOfMonth,
-                     time.hour, time.minute, time.second,
-                     Time_now());
-
-      Time_delay(500);
+      currentSampleNo = Sound__waveCurrentSample;
+      Console_Format("%d samples/s\n", currentSampleNo - lastSampleNo);
+      lastSampleNo = currentSampleNo;
+      Time_delay(1000);
    }
-
-   // vbe info
-   VESA_printInfo();
-
-   // cpu info
-   char vendor[17];
-   CPUID_getVendorString(vendor);
-   Console_Format("CPU Vendor: %s", vendor);
-
-   // pc speaker sound
-   //playTone(1193180 / 800);
-
-   // timing
-   Time_delay(10000);
-   Console_WriteString("wait_end");
-
-   // vesa graphics
-   VESA_init();
-   VESA_clear(rgb(255, 0, 0));
-   VESA_swap();
-   for (uint16 x = 0; x < SCREEN_W; x++)
-      for (uint16 y = 0; y < SCREEN_H; y++)
-         if (x == y)
-            VESA_write(x, y, rgb(0, 255, 0));
-
-   VESA_swap();
-
+   Console_WriteString("\ndone.");
+   Sound_stop();
+   for (;;)
+      ;
    return 0;
 }
